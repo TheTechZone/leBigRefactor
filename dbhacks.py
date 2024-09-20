@@ -47,11 +47,11 @@ class _KeyRecord:
     signature: Optional[str]
 
     def __init__(
-            self,
-            key_id: int,
-            public_key: Union[PublicKey, KemPublicKey],
-            signature: Optional[str],
-            # private_key: Optional[Union[PublicKey, KemPublicKey]]
+        self,
+        key_id: int,
+        public_key: Union[PublicKey, KemPublicKey],
+        signature: Optional[str],
+        # private_key: Optional[Union[PublicKey, KemPublicKey]]
     ):
         super().__init__()  # useless
         self.key_id = key_id
@@ -80,9 +80,7 @@ class _IdentityKeyAnnotation(TypeDecorator):
 
     def process_result_value(self, value: str, dialect) -> IdentityKey:
         if value is not None:
-            value = IdentityKey.from_base64(
-                value.encode()
-            )  # Assuming Base64Str.b64decode() returns bytes
+            value = IdentityKey.from_base64(value.encode())  # Assuming Base64Str.b64decode() returns bytes
         return value
 
     """
@@ -90,9 +88,7 @@ class _IdentityKeyAnnotation(TypeDecorator):
     """
 
     @classmethod
-    def __get_pydantic_core_schema__(
-            cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
+    def __get_pydantic_core_schema__(cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler) -> CoreSchema:
         """
         We return a pydantic_core.CoreSchema that behaves in the following ways:
 
@@ -120,9 +116,7 @@ class _IdentityKeyAnnotation(TypeDecorator):
                     from_str_schema,
                 ]
             ),
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda instance: instance.to_base64()
-            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(lambda instance: instance.to_base64()),
         )
 
 
@@ -154,9 +148,7 @@ class _IdentityKeyPairAnnotation(TypeDecorator):
         )
 
     @classmethod
-    def __get_pydantic_core_schema__(
-            cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
+    def __get_pydantic_core_schema__(cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler) -> CoreSchema:
         """
         We return a pydantic_core.CoreSchema that behaves in the following ways:
 
@@ -207,15 +199,11 @@ class _SignedECKeyAnnotation(TypeDecorator):
     @staticmethod
     def validate_from_dict(value: dict) -> _KeyRecord:
         return _KeyRecord(
-            value.get("keyId"),
-            PublicKey.from_base64(value.get("publicKey").encode()),
-            value.get("signature")
+            value.get("keyId"), PublicKey.from_base64(value.get("publicKey").encode()), value.get("signature")
         )
 
     @classmethod
-    def __get_pydantic_core_schema__(
-            cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
+    def __get_pydantic_core_schema__(cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler) -> CoreSchema:
         from_dict_schema = core_schema.chain_schema(
             [
                 core_schema.dict_schema(),
@@ -232,9 +220,7 @@ class _SignedECKeyAnnotation(TypeDecorator):
                     from_dict_schema,
                 ]
             ),
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda instance: instance.serialize()
-            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(lambda instance: instance.serialize()),
         )
 
 
@@ -259,7 +245,7 @@ class _SignedECKeyPairAnnotation(TypeDecorator):
     def validate_from_dict(value: dict) -> SignedPreKeyRecord:
         key = KeyPair(
             PublicKey.from_base64(value.get("publicKey").encode()),
-            PrivateKey.from_base64(value.get("privateKey").encode())
+            PrivateKey.from_base64(value.get("privateKey").encode()),
         )
         record = SignedPreKeyRecord(
             SignedPreKeyId(value.get("keyId")),
@@ -275,13 +261,11 @@ class _SignedECKeyPairAnnotation(TypeDecorator):
             "keyId": value.id().get_id(),
             "publicKey": value.public_key().to_base64(),
             "privateKey": value.private_key().to_base64(),
-            "signature": base64.b64encode(value.signature()).decode()
+            "signature": base64.b64encode(value.signature()).decode(),
         }
 
     @classmethod
-    def __get_pydantic_core_schema__(
-            cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
+    def __get_pydantic_core_schema__(cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler) -> CoreSchema:
         from_dict_schema = core_schema.chain_schema(
             [
                 core_schema.dict_schema(),
@@ -298,9 +282,7 @@ class _SignedECKeyPairAnnotation(TypeDecorator):
                     from_dict_schema,
                 ]
             ),
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda instance: cls.to_dict(instance)
-            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(lambda instance: cls.to_dict(instance)),
         )
 
 
@@ -330,7 +312,7 @@ class _PreKeyPair(TypeDecorator):
     def validate_from_dict(value: dict) -> PreKeyRecord:
         key = KeyPair(
             PublicKey.from_base64(value.get("publicKey").encode()),
-            PrivateKey.from_base64(value.get("privateKey").encode())
+            PrivateKey.from_base64(value.get("privateKey").encode()),
         )
         record = PreKeyRecord(
             PreKeyId(value.get("keyId")),
@@ -347,9 +329,7 @@ class _PreKeyPair(TypeDecorator):
         }
 
     @classmethod
-    def __get_pydantic_core_schema__(
-            cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
+    def __get_pydantic_core_schema__(cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler) -> CoreSchema:
         from_dict_schema = core_schema.chain_schema(
             [
                 core_schema.dict_schema(),
@@ -366,9 +346,7 @@ class _PreKeyPair(TypeDecorator):
                     from_dict_schema,
                 ]
             ),
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda instance: cls.to_dict(instance)
-            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(lambda instance: cls.to_dict(instance)),
         )
 
 
@@ -419,8 +397,7 @@ class _SignedKyberKeyPairAnnotation(TypeDecorator):
     @staticmethod
     def validate_from_dict(value: dict) -> KyberPreKeyRecord:
         key = KemKeyPair.from_public_and_private(
-            base64.b64decode(value.get("publicKey")),
-            base64.b64decode(value.get("privateKey"))
+            base64.b64decode(value.get("publicKey")), base64.b64decode(value.get("privateKey"))
         )
         record = make_kyber_record(
             value.get("keyId"),
@@ -437,13 +414,11 @@ class _SignedKyberKeyPairAnnotation(TypeDecorator):
             "keyId": value.id().get_id(),
             "publicKey": value.public_key().to_base64(),
             "privateKey": value.secret_key().to_base64(),
-            "signature": base64.b64encode(value.signature()).decode()
+            "signature": base64.b64encode(value.signature()).decode(),
         }
 
     @classmethod
-    def __get_pydantic_core_schema__(
-            cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
+    def __get_pydantic_core_schema__(cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler) -> CoreSchema:
         from_dict_schema = core_schema.chain_schema(
             [
                 core_schema.dict_schema(),
@@ -460,9 +435,7 @@ class _SignedKyberKeyPairAnnotation(TypeDecorator):
                     from_dict_schema,
                 ]
             ),
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda instance: cls.to_dict(instance)
-            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(lambda instance: cls.to_dict(instance)),
         )
 
 
