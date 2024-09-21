@@ -1,34 +1,25 @@
-import time
-from typing import List, Optional, Union, Dict, get_args
-
-from datetime import datetime, timezone
-import json
 import base64
 import copy
+import json
+import time
+from datetime import datetime, timezone
+from typing import Dict, List, Optional, Union, get_args
 
-from sqlmodel import (
-    Field,
-    SQLModel,
-    Relationship,
-    create_engine,
-    Session,
-    select,
-)
-from pydantic import (
-    field_validator,
-)
-from sqlalchemy import PrimaryKeyConstraint, Column
+from pydantic import field_validator
+from sqlalchemy import Column, PrimaryKeyConstraint
 from sqlalchemy.exc import NoResultFound
+from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
+
 from dbhacks import (
-    SQLModelValidation,
     PydanticIdentityKey,
-    PydanticSignedPreKey,
-    PydanticPreKey,
-    PydanticPqKey,
     PydanticIdentityKeyPair,
-    PydanticSignedPreKeyPair,
-    PydanticPreKeyPair,
+    PydanticPqKey,
     PydanticPqKeyPair,
+    PydanticPreKey,
+    PydanticPreKeyPair,
+    PydanticSignedPreKey,
+    PydanticSignedPreKeyPair,
+    SQLModelValidation,
 )
 from session import DatabaseSessionManager
 
@@ -446,9 +437,9 @@ if __name__ == "__main__":
     Test 3: Fake Bundle(s)
     """
     from signal_protocol import helpers
-    from signal_protocol.identity_key import IdentityKeyPair
     from signal_protocol.curve import KeyPair
-    from signal_protocol.state import SignedPreKeyRecord, SignedPreKeyId
+    from signal_protocol.identity_key import IdentityKeyPair
+    from signal_protocol.state import SignedPreKeyId, SignedPreKeyRecord
 
     identity_keypair = IdentityKeyPair.generate()
     spk = KeyPair.generate()

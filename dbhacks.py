@@ -1,30 +1,20 @@
 import base64
 import time
-from typing import Annotated, Any, Union, Optional, Type
+from typing import Annotated, Any, Optional, Type, Union
 
-from pydantic import (
-    PlainSerializer,
-    PlainValidator,
-)
-from signal_protocol.curve import PublicKey, PrivateKey
+from pydantic import GetCoreSchemaHandler, PlainSerializer, PlainValidator
+from pydantic_core import CoreSchema, core_schema
+from signal_protocol.curve import KeyPair, PrivateKey, PublicKey
 from signal_protocol.identity_key import IdentityKey, IdentityKeyPair
+from signal_protocol.kem import KeyPair as KemKeyPair
 from signal_protocol.kem import PublicKey as KemPublicKey
+from signal_protocol.state import KyberPreKeyRecord, PreKeyId, PreKeyRecord, SignedPreKeyId, SignedPreKeyRecord
 from sqlalchemy import String
+from sqlalchemy.types import JSON, TypeDecorator
 from sqlmodel import SQLModel
 from sqlmodel._compat import SQLModelConfig  # noqa
-from pydantic_core import CoreSchema, core_schema
-from pydantic import GetCoreSchemaHandler
 
-from sqlalchemy.types import TypeDecorator, JSON
-
-from signal_protocol.state import SignedPreKeyRecord, SignedPreKeyId
-from signal_protocol.curve import KeyPair
-from signal_protocol.state import PreKeyRecord, PreKeyId
-
-from signal_protocol.kem import KeyPair as KemKeyPair
-from signal_protocol.state import KyberPreKeyRecord
 from protos.gen.storage_pb2 import SignedPreKeyRecordStructure
-
 
 #
 """
@@ -36,8 +26,10 @@ Base64Bytes = Annotated[
     PlainSerializer(lambda x: base64.b64encode(x), when_used="json"),
 ]
 
-Base64Bytes.__doc__ = ("Pydantic has Base64 types however they use encodestring and decodestring internally which add"
-                       "a `\\n` at the end :c")
+Base64Bytes.__doc__ = (
+    "Pydantic has Base64 types however they use encodestring and decodestring internally which add"
+    "a `\\n` at the end :c"
+)
 
 
 class SQLModelValidation(SQLModel):
