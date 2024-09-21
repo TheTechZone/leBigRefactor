@@ -15,6 +15,17 @@ from sqlmodel._compat import SQLModelConfig  # noqa
 from pydantic_core import CoreSchema, core_schema
 from pydantic import GetCoreSchemaHandler
 
+from sqlalchemy.types import TypeDecorator, JSON
+
+from signal_protocol.state import SignedPreKeyRecord, SignedPreKeyId
+from signal_protocol.curve import KeyPair
+from signal_protocol.state import PreKeyRecord, PreKeyId
+
+from signal_protocol.kem import KeyPair as KemKeyPair
+from signal_protocol.state import KyberPreKeyRecord
+from protos.gen.storage_pb2 import SignedPreKeyRecordStructure
+
+
 #
 """
 "Pydantic has Base64 types however they use encodestring and decodestring internally which add a `\\n` at the end :c"
@@ -25,7 +36,8 @@ Base64Bytes = Annotated[
     PlainSerializer(lambda x: base64.b64encode(x), when_used="json"),
 ]
 
-Base64Bytes.__doc__ = "Pydantic has Base64 types however they use encodestring and decodestring internally which add a `\\n` at the end :c"
+Base64Bytes.__doc__ = ("Pydantic has Base64 types however they use encodestring and decodestring internally which add"
+                       "a `\\n` at the end :c")
 
 
 class SQLModelValidation(SQLModel):
@@ -65,9 +77,6 @@ class _KeyRecord:
         if self.signature:
             data["signature"] = self.signature
         return data
-
-
-from sqlalchemy.types import TypeDecorator, JSON
 
 
 class _IdentityKeyAnnotation(TypeDecorator):
@@ -224,10 +233,6 @@ class _SignedECKeyAnnotation(TypeDecorator):
         )
 
 
-from signal_protocol.state import SignedPreKeyRecord, SignedPreKeyId
-from signal_protocol.curve import KeyPair
-
-
 class _SignedECKeyPairAnnotation(TypeDecorator):
     impl = JSON
 
@@ -284,9 +289,6 @@ class _SignedECKeyPairAnnotation(TypeDecorator):
             ),
             serialization=core_schema.plain_serializer_function_ser_schema(lambda instance: cls.to_dict(instance)),
         )
-
-
-from signal_protocol.state import PreKeyRecord, PreKeyId
 
 
 class _PreKeyPair(TypeDecorator):
@@ -358,11 +360,6 @@ class _SignedKyberKeyAnnotation(_SignedECKeyAnnotation):
             KemPublicKey.from_base64(value.get("publicKey").encode()),
             value.get("signature"),
         )
-
-
-from signal_protocol.kem import KeyPair as KemKeyPair
-from signal_protocol.state import KyberPreKeyRecord
-from protos.gen.storage_pb2 import SignedPreKeyRecordStructure
 
 
 def make_kyber_record(key_id: int, ts: int, kp: KemKeyPair, signature: bytes) -> KyberPreKeyRecord:
@@ -450,10 +447,12 @@ PydanticPreKeyPair = Annotated[_KeyRecord, _PreKeyPair]
 
 PydanticPqKey = Annotated[_KeyRecord, _SignedKyberKeyAnnotation]
 PydanticPqKeyPair = Annotated[KyberPreKeyRecord, _SignedKyberKeyPairAnnotation]
-""" TODO: also add redundant forms 
+""" TODO: also add redundant forms
 https://github.com/microsoft/pylance-release/issues/2574#issuecomment-1100808934
 
-further reading https://www.gauge.sh/blog/the-trouble-with-all & https://www.apptension.com/blog-posts/tracing-the-evolution-of-pythons-typing-features
+further reading
+    https://www.gauge.sh/blog/the-trouble-with-all &
+    https://www.apptension.com/blog-posts/tracing-the-evolution-of-pythons-typing-features
 """
 __all__ = [
     "SQLModelValidation",

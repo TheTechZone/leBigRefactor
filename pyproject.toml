@@ -1,6 +1,6 @@
 # pyproject.toml file for Black settings
 [tool.black]
-line-length = 120
+line-length = 120 # most tools default to 80 but I find that too small (it's not the 80s anymore)
 target-version = ['py310', 'py311', 'py312', 'py313']
 include = '\.pyi?$'
 # check later: https://github.com/psf/black/blob/main/docs/guides/using_black_with_other_tools.md

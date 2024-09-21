@@ -44,7 +44,7 @@ class DatabaseSessionManager(metaclass=SingletonMeta):
             print("This class in a Singleton!")
         else:
             DatabaseSessionManager._instance = self
-            DATABASE_URL = f"sqlite:///./mitm.db"
+            DATABASE_URL = "sqlite:///./mitm.db"
             DatabaseSessionManager._engine = create_engine(DATABASE_URL, echo=True)
             SQLModel.metadata.create_all(DatabaseSessionManager._engine)
 

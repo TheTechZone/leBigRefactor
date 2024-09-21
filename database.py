@@ -4,6 +4,7 @@ from typing import List, Optional, Union, Dict, get_args
 from datetime import datetime, timezone
 import json
 import base64
+import copy
 
 from sqlmodel import (
     Field,
@@ -68,8 +69,8 @@ class Device(SQLModel, table=True):
     __table_args__ = (PrimaryKeyConstraint("aci", "device_id"),)
 
 
-## REFACTOR: instead of holding all the possible bundles together as one row, it might make sense to split them into distinct rows with one key each
-## for each possible bundle a user might expect. We have to first check how the server generates bundles
+# REFACTOR: instead of holding all the possible bundles together as one row, it might make sense to split them into distinct
+#  rows with one key each for each possible bundle a user might expect. We have to first check how the server generates bundles
 class LegitBundle(SQLModel, table=True):
     type: str = Field(
         primary_key=True, default="aci"
@@ -127,7 +128,8 @@ class LegitBundle(SQLModel, table=True):
         },
     )
 
-    # last_resort_kyber: Optional[dict] = Field(sa_column=Column(JSON), alias="lastResortKyber", schema_extra={"serialization_alias": "lastResortKyber"}) # not put on the wire?
+    # last_resort_kyber: Optional[dict] = Field(sa_column=Column(JSON),
+    # alias="lastResortKyber", schema_extra={"serialization_alias": "lastResortKyber"}) # not put on the wire?
 
     # composite primary keys are not directly supported by SQLModel so relying on the internal
     # SQLAlchemy support instead
@@ -200,7 +202,7 @@ class MitmBundle(SQLModelValidation, table=True):
     # composite primary keys are not directly supported by SQLModel so relying on the internal
     # SQLAlchemy support instead
     __table_args__ = (PrimaryKeyConstraint("type", "aci", "device_id"),)
-    """ TODO: for fake bundles it makes sense to tie the creation of the database entry with the creation 
+    """ TODO: for fake bundles it makes sense to tie the creation of the database entry with the creation
     of the keys. Instead of doing it at the level of `MitmUser`. This reduces the responsibility of the class.
     having only to reinstate from a Database entry.
     """
@@ -353,9 +355,6 @@ def create_tables():
     SQLModel.metadata.create_all(engine)
 
 
-import copy
-
-
 def json_join_public(data1: list[dict], data2: dict):
     result = copy.deepcopy(data1)
     for item in result:
@@ -467,7 +466,7 @@ if __name__ == "__main__":
         prekey_start_at=76,
         kyber_prekey_start_at=55055,
         # pq_pre_keys[0]["keyId"]
-    )  ## spk is a string, wtf is the keyId?
+    )  # spk is a string, wtf is the keyId?
 
     fake_pre_keys["preKeys"] = json_join_public(fake_pre_keys["preKeys"], fake_secret_pre_keys["preKeys"])
     fake_pre_keys["pqPreKeys"] = json_join_public(fake_pre_keys["pqPreKeys"], fake_secret_pre_keys["pqPreKeys"])
