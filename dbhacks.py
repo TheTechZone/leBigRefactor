@@ -12,9 +12,11 @@ from signal_protocol.state import KyberPreKeyRecord, PreKeyId, PreKeyRecord, Sig
 from sqlalchemy import String
 from sqlalchemy.types import JSON, TypeDecorator
 from sqlmodel import SQLModel
-from sqlmodel._compat import SQLModelConfig  # noqa
 
 from protos.gen.storage_pb2 import SignedPreKeyRecordStructure
+
+from sqlmodel._compat import SQLModelConfig  # noqa
+
 
 #
 """
