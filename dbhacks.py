@@ -9,7 +9,7 @@ from signal_protocol.identity_key import IdentityKey, IdentityKeyPair
 from signal_protocol.kem import KeyPair as KemKeyPair
 from signal_protocol.kem import PublicKey as KemPublicKey
 from signal_protocol.state import KyberPreKeyRecord, PreKeyId, PreKeyRecord, SignedPreKeyId, SignedPreKeyRecord
-from sqlalchemy import String
+from sqlalchemy import String, Dialect
 from sqlalchemy.types import JSON, TypeDecorator
 from sqlmodel import SQLModel
 
@@ -76,12 +76,12 @@ class _KeyRecord:
 class _IdentityKeyAnnotation(TypeDecorator):
     impl = String
 
-    def process_bind_param(self, value: IdentityKey, dialect) -> str:
+    def process_bind_param(self, value: IdentityKey, dialect) -> Optional[str]:
         if value is not None:
             value = value.to_base64()  # Assuming value is bytes
         return value
 
-    def process_result_value(self, value: str, dialect) -> IdentityKey:
+    def process_result_value(self, value: str, dialect) -> Optional[IdentityKey]:
         if value is not None:
             value = IdentityKey.from_base64(value.encode())  # Assuming Base64Str.b64decode() returns bytes
         return value
@@ -288,7 +288,7 @@ class _SignedECKeyPairAnnotation(TypeDecorator):
 class _PreKeyPair(TypeDecorator):
     impl = JSON
 
-    def process_bind_param(self, value: PreKeyRecord, dialect) -> dict:
+    def process_bind_param(self, value: PreKeyRecord, dialect: Dialect) -> dict:
         if value is not None:
             if isinstance(value, list):
                 value = list(map(lambda x: self.to_dict(x), value))
@@ -296,7 +296,7 @@ class _PreKeyPair(TypeDecorator):
                 value = self.to_dict(value)
         return value
 
-    def process_result_value(self, value: dict, dialect) -> PreKeyRecord:
+    def process_result_value(self, value: dict, dialect: Dialect) -> PreKeyRecord:
         if value is not None:
             if isinstance(value, list):
                 value = list(map(lambda x: self.validate_from_dict(x), value))

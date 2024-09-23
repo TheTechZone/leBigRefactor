@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, Type
 
 # import database # noqaz
 from sqlalchemy import Engine
@@ -13,7 +13,7 @@ class SingletonMeta(type):
     metaclass because it is best suited for this purpose.
     """
 
-    _instances = {}
+    _instances: dict[Type, "SingletonMeta"] = {}
 
     def __call__(cls, *args, **kwargs):
         """
