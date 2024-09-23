@@ -7,3 +7,4 @@ isort
 pylint
 bandit
 mypy
+ruff
