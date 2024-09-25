@@ -2,10 +2,7 @@ from sqlalchemy.orm.util import identity_key
 
 # Database Module
 
-`database` module (name pending) is designed to make it easy to manage database sessions and cryptographic material from `signal-protocol.py`.  <font color="burgundy"><br/>
-<b>CHRISSY</b>: Should I know where this file is/what's in it? I would suggest to not rely on this kind of prior knowledge and just write a short sentence on what is included there.
-<br/>
-</font> Here, you'll find an overview of the module's design, its core components, and usage guidelines.
+`database` module (name pending) is designed to make it easy to manage database sessions and cryptographic material from `signal-protocol.py`. Here, you'll find an overview of the module's design, its core components, and usage guidelines.
 
 ## Overview
 
@@ -79,7 +76,7 @@ To define a custom type for a python class `PyClass` one has to specify:
 
 - the schema for `Pydantic`
   - this implies overriding the `__get_pydantic_core_schema__(cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler) -> CoreSchema` classmethod
-- the process for binding an instance of `PyClass` to/from the database driver:
+- the process for binding an instance of `PyClass` to/from the database driver (expected by [SQLAlchemy](https://docs.sqlalchemy.org/en/20/core/custom_types.html)):
   - `process_bind_param(self, value, dialect):` controls how values are saved to the db; the `dialect` parameter tells you which engine is currently used (which influences how the object has to bind to the SQL prepared statement -- e.g., some databases do not support a `JSON` type so you'd need to store it as a string type)
   - `process_result_value(self, value, dialect):` handles the reserve direction, from a
 <font color="burgundy"><b>CHRISSY</b>: looks like the end of the sentence got nomnomnomed :)
