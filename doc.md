@@ -1,17 +1,17 @@
-from sqlalchemy.orm.util import identity_key
-
 # Database Module
 
 `database` module (name pending) is designed to make it easy to manage database sessions and cryptographic material from `signal-protocol.py`. Here, you'll find an overview of the module's design, its core components, and usage guidelines.
 
+**n.b.** Some familiarity with the cryptographic API provided by [`signal-protocol.py`](https://github.com/TheTechZone/signal-protocol.py) is expected for the following examples.
+
 ## Overview
 
-This module combines the powerful ORM capabilities of SQLAlchemy with Pydantic's data validation, all wrapped up in `SQLModel`. 
+This module combines the powerful ORM capabilities of [`SQLAlchemy`](https://www.sqlalchemy.org/) with [`Pydantic`'s](https://docs.pydantic.dev/2.9/) data validation,
+all wrapped up in [`SQLModel`](https://sqlmodel.tiangolo.com/). 
 
-It includes components for _session management_ and database schema definitions, abstracting the work with cryptographic operations. <font color="burgundy"><br/>
-<b>CHRISSY</b>: What type of work?
-<br/>
-</font>
+It includes components for _session management_ and database schema definitions,
+abstracting the work necessary to with cryptographic material at runtime,
+regardless of where it is instantiated from (parsed from an external source or loaded from a database).
 
 ---
 
@@ -21,7 +21,7 @@ It includes components for _session management_ and database schema definitions,
 
 `SQLModel` is awesome, because it combines:
 - **SQLAlchemy's ORM:** For powerful database interactions.
-- **Pydantic's Validation:** For automatic data validation, parsing and serialization to external services (e.g. JSON).
+- **Pydantic's Validation:** For automatic data validation, parsing and serialization to external services (e.g. via JSON).
 
 This combo makes it easy to handle complex data types and ensures your data is in the right format at the right time.
 
@@ -44,7 +44,7 @@ Key custom types include:
 
 The `DatabaseSessionManager` takes care of managing database sessions using the Singleton design pattern. This means, that only a single instance can be instantiated by design, leading to a single instance handling all database interactions, preventing any issues arising from multiple connections.
 
-todo: currently it is not async aware (but that should be fine for our use-case) MEOW ノ┬─┬ノ ︵ ( \o°o)\
+todo: currently it is not async aware (but that should be fine for our use-case)
 #### Usage Example:
 
 ```python3
@@ -78,8 +78,7 @@ To define a custom type for a python class `PyClass` one has to specify:
   - this implies overriding the `__get_pydantic_core_schema__(cls, _source_type: Type[Any], _handler: GetCoreSchemaHandler) -> CoreSchema` classmethod
 - the process for binding an instance of `PyClass` to/from the database driver (expected by [SQLAlchemy](https://docs.sqlalchemy.org/en/20/core/custom_types.html)):
   - `process_bind_param(self, value, dialect):` controls how values are saved to the db; the `dialect` parameter tells you which engine is currently used (which influences how the object has to bind to the SQL prepared statement -- e.g., some databases do not support a `JSON` type so you'd need to store it as a string type)
-  - `process_result_value(self, value, dialect):` handles the reserve direction, from a
-<font color="burgundy"><b>CHRISSY</b>: looks like the end of the sentence got nomnomnomed :)
+  - `process_result_value(self, value, dialect):` handles the reserve direction, from the database to cryptographic objects
 </font>
 
 #### Example of defining an IdentityKey
@@ -137,11 +136,12 @@ class _IdentityKeyAnnotation(TypeDecorator):
 PydanticIdentityKey = Annotated[IdentityKey, _IdentityKeyAnnotation]
 ```
 
-More info (todo link docs):
+More info:
 - https://docs.pydantic.dev/2.9/concepts/types/#handling-third-party-types
+- https://docs.sqlalchemy.org/en/20/core/custom_types.html#sqlalchemy.types.TypeDecorator
 
 ### Database Schema Definitions (`database.py`)
-This is where the database schema is defined using SQLModel. 
+This is where the database schema is defined using SQLModel. _This is adapted from the previous data model._
 
 ## Usage Guide
 
